@@ -1,0 +1,315 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}ToolShare - All Users{% endblock %}
+{% block navbar_administration %}active{% endblock %}
+{% block navbar_admin_manage_user %}active{% endblock %}
+
+{% block body %}
+    {% if user.is_authenticated %}
+        <form action="/ToolShare/admin/manage-users/" method="post" class="form-horizontal" id="viewForm">
+            {% csrf_token %}
+            <fieldset>
+                <legend>Active Users</legend>
+                <table id="activeUserGrid" class="table" data-sorting="true" data-paging="true" data-filtering="true"
+                       data-editing="true">
+                    <thead>
+                    <tr>
+                        <th data-name="id" data-type="number" data-sorted="true">ID</th>
+                        <th data-name="userFirstName">First Name</th>
+                        <th data-name="userLastName">Last Name</th>
+                        <th data-name="userEmail">E-Mail</th>
+                        <th data-name="userRole">Role</th>
+                        <th data-name="userApprovalStatus">Registration Status</th>
+                        <th data-name="userDOB" data-breakpoints="all" data-format-string="Y-m-d">Date of Birth</th>
+                        <th data-name="userTelephone" data-breakpoints="all">Telephone</th>
+                        <th data-name="userAddressLine1" data-breakpoints="all">Address Line 1</th>
+                        <th data-name="userAddressLine2" data-breakpoints="all">Address Line 2</th>
+                        {% if user.role == 'SYS' %}
+                            <th data-name="userZipCode" data-breakpoints="xs sm md" data-type="number">Zip Code</th>
+                        {% endif %}
+                        <th data-name="userDateJoined" data-breakpoints="all" data-format-string="Y-m-d">Date Joined
+                        </th>
+                        <th data-name="isBorrowingTools" data-visible="false">Is Borrowing Tools</th>
+                        <th data-name="hasAllToolsAvailable" data-visible="false">Has All Tools Available</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for user_loop in users %}
+                        <tr data-expanded="false">
+                            <td>{{ user_loop.pk }}</td>
+                            <td>{{ user_loop.first_name }}</td>
+                            <td>{{ user_loop.last_name }}</td>
+                            <td>{{ user_loop.email }}</td>
+                            {% if user_loop.role == 'BAS' %}
+                                <td>{{ 'Basic User' }}</td>
+                            {% elif user_loop.role == 'SHD' %}
+                                <td>{{ 'Shed Coordinator' }}
+                                    {% elif user_loop.role == 'SYS' %}
+                                <td>{{ 'System Administrator' }}</td>
+                            {% endif %}
+                            <td>{{ user_loop.approval_status }}</td>
+                            <td>{{ user_loop.date_of_birth|date:"Y-m-d" }}</td>
+                            <td>{{ user_loop.telephone }}</td>
+                            <td>{{ user_loop.address_line1 }}</td>
+                            <td>{{ user_loop.address_line2 }}</td>
+                            {% if user.role == 'SYS' %}
+                                <td>{{ user_loop.sharezone.zip_code }}</td>
+                            {% endif %}
+                            <td>{{ user_loop.date_joined|date:"Y-m-d" }}</td>
+                            <td>{{ user_loop.is_currently_borrowing_tools }}</td>
+                            <td>{{ user_loop.has_all_tools_available }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+                <script>
+                    jQuery(function ($) {
+                        var $modal = $('#editor-modal'),
+                                $editor = $('#editor'),
+                                $editorTitle = $('#editor-title')
+                        $('#activeUserGrid').footable({
+                            "editing": {
+                                enabled: true,
+                                "allowDelete": true,
+                                "allowAdd": false,
+                                "allowEdit": true,
+                                "position": "right",
+                                "showText": '<span class="fooicon fooicon-pencil" aria-hidden="true"></span> Add / Edit Users',
+                                "addText": '<span class="fooicon fooicon-plus" aria-hidden="true"></span> Add User',
+                                "deleteRow": function (row) {
+                                    if (row.value.isBorrowingTools == "True") {
+                                        alert("This user is currently borrowing tools and cannot be deleted until all tools have been returned");
+                                        return;
+                                    }
+                                    if (row.value.hasAllToolsAvailable == "True") {
+                                        alert("This user is currently lending tools and cannot be deleted until all tools have been returned");
+                                        return;
+                                    }
+                                    if (row.value.id == {{ user.pk }}) {
+                                        alert("You cannot delete your account");
+                                        return;
+                                    }
+                                    if (confirm('Are you sure you want to delete this User (user #' + row.value.id + ' - ' + row.value.userEmail + ')?')) {
+                                        row.delete();
+                                        $("#viewForm").submit(function (eventObj) {
+                                            $('<input />').attr('type', 'hidden')
+                                                    .attr('name', "userId")
+                                                    .attr('value', row.value.id)
+                                                    .appendTo('#viewForm');
+                                            return true;
+                                        });
+                                        $("#viewForm").submit();
+                                    }
+                                },
+                                "addRow": function () {
+                                    $modal.removeData('row'); // remove any previous row data
+                                    $editor[0].reset(); // reset the form to clear any previous row data
+                                    $editorTitle.text('Add a new User'); // set the modal title
+                                    $modal.modal('show'); // display the modal
+                                },
+                                "editRow": function (row) {
+                                    var values = row.val();
+                                    // we need to find and set the initial value for the editor inputs
+                                    $editor.find('#userId').val(values.id);
+                                    $editor.find('#userFirstName').val(values.userFirstName);
+                                    $editor.find('#userLastName').val(values.userLastName);
+                                    $editor.find('#userEmail').val(values.userEmail);
+                                    $editor.find('#userRole').val(values.userRole);
+                                    $editor.find('#userDOB').val(values.userDOB);
+                                    $editor.find('#userTelephone').val(values.userTelephone);
+                                    $editor.find('#userAddressLine1').val(values.userAddressLine1);
+                                    $editor.find('#userAddressLine2').val(values.userAddressLine2);
+                                    $editor.find('#userRole').val(values.userRole.trim());
+                                    $editor.find('#userApprovalStatus').val(values.userApprovalStatus.trim());
+                                    $editor.find('#passwordReset').attr("href", "/ToolShare/admin/password-reset/" + values.id + "/");
+
+                                    $modal.data('row', row); // set the row data value for use later
+                                    $editorTitle.text('Edit user #' + values.id + ' (' + values.userEmail + ')'); // set the modal title
+                                    $modal.modal('show'); // display the modal
+                                }
+                            }
+                        });
+                    });
+                </script>
+            </fieldset>
+        </form>
+
+        <div class="modal fade" id="editor-modal" tabindex="-1" role="dialog" aria-labelledby="editor-title">
+            <div class="modal-dialog" role="document" style="width: 740px">
+                <form action="/ToolShare/admin/add-edit-user/" method="post" class="modal-content form-horizontal"
+                      id="editor">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">×</span></button>
+                        <h4 class="modal-title" id="editor-title">Add User</h4>
+                    </div>
+                    <div class="modal-body">
+
+
+                        <input type="number" id="userId" name="userId" class="hidden"/>
+                        <div class="form-group ">
+                            <label for="userFirstName" class="col-md-4 control-label">First Name</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control input-md" id="userFirstName" name="userFirstName"
+                                       placeholder="First Name" required>
+                            </div>
+                        </div>
+                        <div class="form-group ">
+                            <label for="userLastName" class="col-md-4 control-label">Last Name</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control input-md" id="userLastName" name="userLastName"
+                                       placeholder="Last Name" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="userTelephone" class="col-md-4 control-label">Telephone</label>
+                            <div class="col-sm-4">
+                                <input type="tel" id="userTelephone" name="userTelephone" placeholder="8675309"
+                                       class="form-control input-md" maxlength="10" minlength="7" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="userAddressLine1" class="col-md-4 control-label">Address Line 1</label>
+                            <div class="col-sm-4">
+                                <input type="text" id="userAddressLine1" name="userAddressLine1"
+                                       placeholder="Address Line 1"
+                                       class="form-control input-md" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="userAddressLine2" class="col-md-4 control-label">Address Line 2</label>
+                            <div class="col-sm-4">
+                                <input type="tel" id="userAddressLine2" name="userAddressLine2" placeholder="8675309"
+                                       class="form-control input-md">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="userDOB" class="col-md-4 control-label">Date of Birth</label>
+                            <div class="col-sm-4">
+                                <input type="date" id="userDOB" name="userDOB" max='{{ dob_max|date:"Y-m-d" }}'
+                                       placeholder="Date of Birth"
+                                       class="form-control input-md" required>
+                            </div>
+                        </div>
+
+                        <!-- Select input-->
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="userRole">Role</label>
+                            <div class="col-md-4">
+                                <select id="userRole" name="userRole" class="form-control input-md" required>%}
+                                    <option value="Basic User">Basic User</option>
+                                    <option value="Shed Coordinator">Shed Coordinator</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Select input-->
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="userApprovalStatus">Approval Status</label>
+                            <div class="col-md-4">
+                                <select id="userApprovalStatus" name="userApprovalStatus" class="form-control input-md"
+                                        required>%}
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="userRole">&nbsp;</label>
+                            <div class="col-md-4">
+                                <a id="passwordReset" class="btn btn-default">Reset Password</a>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <br><br>
+        <form action="/ToolShare/admin/restore-user/" method="post" class="form-horizontal" id="viewDeletedForm">
+            {% csrf_token %}
+            <fieldset>
+                <legend>Deleted Users</legend>
+                <table class="table" id="deletedUserGrid" data-sorting="true" data-paging="true" data-filtering="true">
+                    <thead>
+                    <tr>
+                        <th data-name="id" data-type="number" data-sorted="true">ID</th>
+                        <th data-name="userFirstName">First Name</th>
+                        <th data-name="userLastName">Last Name</th>
+                        <th data-name="userEmail">E-Mail</th>
+                        <th data-name="userRole">Role</th>
+                        <th data-name="userRestoreAction">Restore User</th>
+                        <th data-name="userDOB" data-breakpoints="all" data-format-string="Y-m-d">Date of Birth</th>
+                        <th data-name="userTelephone" data-breakpoints="all">Telephone</th>
+                        <th data-name="userAddressLine1" data-breakpoints="all">Address Line 1</th>
+                        <th data-name="userAddressLine2" data-breakpoints="all">Address Line 2</th>
+                        {% if user.role == 'SYS' %}
+                            <th data-name="userZipCode" data-breakpoints="xs sm md" data-type="number">Zip Code</th>
+                        {% endif %}
+                        <th data-name="userDateJoined" data-breakpoints="all" data-format-string="Y-m-d">Date Joined
+                        </th>
+                        <th data-name="isBorrowingTools" data-visible="false">Is Borrowing Tools</th>
+                        <th data-name="hasAllToolsAvailable" data-visible="false">Has All Tools Available</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for user_loop in deleted_users %}
+                        <tr data-expanded="false">
+                            <td>{{ user_loop.pk }}</td>
+                            <td>{{ user_loop.first_name }}</td>
+                            <td>{{ user_loop.last_name }}</td>
+                            <td>{{ user_loop.email }}</td>
+                            {% if user_loop.role == 'BAS' %}
+                                <td>{{ 'Basic User' }}</td>
+                            {% elif user_loop.role == 'SHD' %}
+                                <td>{{ 'Shed Coordinator' }}
+                                    {% elif user_loop.role == 'SYS' %}
+                                <td>{{ 'System Administrator' }}</td>
+                            {% endif %}
+                            <td class="glyphicon glyphicon-retweet" style="cursor: pointer;" data-toggle="tooltip"  title="Click to restore {{ user_loop }}" onclick="SubmitRestoreForm({{ user_loop.pk }});" ></td>
+                            <td>{{ user_loop.date_of_birth|date:"Y-m-d" }}</td>
+                            <td>{{ user_loop.telephone }}</td>
+                            <td>{{ user_loop.address_line1 }}</td>
+                            <td>{{ user_loop.address_line2 }}</td>
+                            {% if user.role == 'SYS' %}
+                                <td>{{ user_loop.sharezone.zip_code }}</td>
+                            {% endif %}
+                            <td>{{ user_loop.date_joined|date:"Y-m-d" }}</td>
+                            <td>{{ user_loop.is_currently_borrowing_tools }}</td>
+                            <td>{{ user_loop.has_all_tools_available }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+                <script>
+                    jQuery(function ($) {
+                        $('#deletedUserGrid').footable();
+                    });
+
+                    function SubmitRestoreForm(id){
+                        $('#viewDeletedForm').append('<input type="hidden" name="userId" id="userId" value="'+id+'" />');
+                        $('#viewDeletedForm').submit();
+                    }
+                </script>
+            </fieldset>
+        </form>
+
+
+    {% else %}
+        <p>Please sign-in as a System Administrator to access this feature.</p>
+    {% endif %}
+
+
+{% endblock %}

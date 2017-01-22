@@ -1,0 +1,51 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}ToolShare - My Tools{% endblock %}
+{% block navbar_my-tools %}active{% endblock %}
+
+{% block body %}
+
+    {% if user.is_authenticated %}
+        <legend>My Tools</legend>
+        {%if tools %}
+            <div class="row grid table-bordered">
+                <div class="col-sm-3"  style="background: burlywood">Tool Name</div>
+                <div class="col-sm-2"  style="background: burlywood">Condition</div>
+                <div class="col-sm-2"  style="background: burlywood">Status</div>
+                <div class="col-sm-2"  style="background: burlywood">Location</div>
+                <div class="col-sm-2"  style="background: burlywood">Condition</div>
+                <div class="col-sm-1"  style="background: burlywood">Edit</div>
+            </div>
+            {%for tool in tools%}
+                <div class="row grid table-bordered"">
+                <div class="col-sm-3">{{tool.name}}</div>
+                <div class="col-sm-2" >{{tool.tool_condition}}</div>
+                {% if tool.tool_status.status_name == 'Available' %}
+                        <div class="col-sm-1" style="font-weight:bold;color:#008000" >{{tool.tool_status}}</div>
+                {% endif %}
+                {% if tool.tool_status.status_name == 'Borrowed' %}
+                        <div class="col-sm-1" style="font-weight:bold;color:#ff0000" >{{tool.tool_status}}</div>
+                {% endif %}
+                {% if tool.tool_status.status_name == 'Blackout' %}
+                        <div class="col-sm-1" style="font-weight:bold;color: #2b2b2b">{{tool.tool_status}}</div>
+                {% endif %}
+                {% if tool.tool_location.location_name == 'Home' %}
+                        <div class="col-sm-1" style="padding-left: 30px" ><span class="glyphicon glyphicon-home"></span></div>
+                {% endif %}
+                {% if tool.tool_location.location_name == 'Shed' %}
+                        <div class="col-sm-1" style="padding-left: 30px" ><span class="glyphicon glyphicon-wrench"></span></div>
+                {% endif %}
+                <div class="col-sm-2" >{{tool.tool_condition}}</div>
+                <div class="col-sm-1 glyphicon glyphicon-edit" ></div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No tools registered yet :|</p>
+        {% endif %}
+        <hr/>
+        <a href="{% url 'ToolShare:register-tool' %}">Register Tool</a>
+    {% else %}
+        <p>Please sign-in to access this feature.</p>
+    {% endif %}
+
+
+{% endblock %}

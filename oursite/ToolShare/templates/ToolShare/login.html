@@ -1,0 +1,62 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}ToolShare - Login{% endblock %}
+{% block navbar_signin %}active{% endblock %}
+
+{% block body %}
+
+    {% if user.is_authenticated %}
+        <p>This functionality is disabled for signed-in users</p>
+    {% else %}
+
+        <form action="/ToolShare/signin/" method="post" class="form-horizontal">
+            {% csrf_token %}
+
+            <fieldset>
+
+                <!-- Form Name -->
+                <legend>User Login</legend>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="username">E-Mail</label>
+                    <div class="col-md-4">
+                        <input style="text-transform: lowercase" id="username" value="{{ form.email.value|default:'' }}" name="username" type="email" placeholder="me@email.com" class="form-control input-md" required>
+                    </div>
+                </div>
+
+                <!-- Password input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="password">Password</label>
+                    <div class="col-md-4">
+                        <input id="password" value="" name="password" type="password" placeholder="" class="form-control input-md" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-md-4 control-label" >&nbsp;</label>
+                    {{ form.non_field_errors }}
+                </div>
+
+
+                <!-- Buttons -->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="submit"></label>
+                    <div class="col-md-8">
+                        <button id="submit" name="submit" class="btn btn-primary" onclick="covertLowercase()">Login</button>
+                    </div>
+                </div>
+                <script>
+                    function covertLowercase() {
+                        var email = $('#username').val().toLowerCase();
+                        $('#username').val(email);
+                    }
+                </script>
+            </fieldset>
+
+            <!-- <ul>{{form.as_ul}}</ul> -->
+
+        </form>
+
+    {% endif %}
+
+{% endblock %}

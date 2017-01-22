@@ -1,0 +1,104 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}ToolShare - Shed Tools{% endblock %}
+{% block navbar_shed-tools %}active{% endblock %}
+
+{% block body %}
+
+    {% if user.is_authenticated %}
+        <legend>Shed Tools</legend>
+
+        <div class="jumbotron" style="padding-bottom: 20px;padding-left: 10px;padding-right: 10px;padding-top: 10px;">
+            <legend style="font-size:18px;">Shed Details</legend>
+
+            <div class="row" style="margin:5px">
+                <div class="col-sm-6" style="padding:8px; background: #f7dcc5"><b>Shed Name:</b> {{ shed.name }}</div>
+                <div class="col-sm-6" style="padding:8px; background: #f7dcc5"><b>Created On:</b> {{ shed.created_at }}
+                </div>
+            </div>
+            <div class="row" style="margin:5px">
+                <div class="col-sm-12" style="padding:8px; background: #f7dcc5"><b>Address:</b> {{ shed.address }}</div>
+            </div>
+            <div class="row" style="margin:5px">
+                <div class="col-sm-12" style="padding:8px; background: #f7dcc5"><b>Description:</b> {{ shed.description }}</div>
+            </div>
+            <div class="row" style="margin:5px">
+                <div class="col-sm-12" style="padding:8px; background: #c5eff7"><b>Coordinators:</b>
+                    {% for user in coordinators %}
+                        {{ user.get_full_name }}({{ user.email }});&nbsp;
+                    {% endfor %}
+                </div>
+            </div>
+
+
+            {% for user in coordinators %}
+                {% if request.user.email == user.email %}
+                    <button id="updateShed" style="margin: 5px" name="updateShed" type="button"
+                            class="btn btn-primary btn-sm"
+                            onclick="window.location.href='/ToolShare/shed/shed-update/'+{{ shed.id }}+'/'">Update Shed
+                    </button>
+                {% endif %}
+            {% endfor %}
+
+        </div>
+
+        {% if tools %}
+            <div class="row grid table-bordered">
+                <div class="col-sm-1" style="background: burlywood">Tool ID</div>
+                <div class="col-sm-2" style="background: burlywood">Tool Name</div>
+                <div class="col-sm-3" style="background: burlywood">Owner</div>
+                <div class="col-sm-1" style="background: burlywood">Category</div>
+                <div class="col-sm-1" style="background: burlywood">Status</div>
+                <div class="col-sm-1" style="background: burlywood">Location</div>
+                <div class="col-sm-2" style="background: burlywood">Condition</div>
+                <div class="col-sm-1" style="background: burlywood">Action</div>
+            </div>
+            {% for tool in tools %}
+                {% if tool.is_deleted == False %}
+                    <div class="row grid table-bordered" data-toggle="tooltip"
+                         title="Description: {{ tool.description }} ">
+                        <div class="col-sm-1">{{ tool.pk }}</div>
+                        <div class="col-sm-2">{{ tool.name }}</div>
+                        <div class="col-sm-3">{{ tool.tool_owner.get_full_name }} ({{ tool.tool_owner.email }})</div>
+                        <div class="col-sm-1">{{ tool.tool_category }}</div>
+                        {% if tool.tool_status.status_name == 'Available' %}
+                            <div class="col-sm-1" style="font-weight:bold;color:#008000">{{ tool.tool_status }}</div>
+                        {% endif %}
+                        {% if tool.tool_status.status_name == 'Borrowed' %}
+                            <div class="col-sm-1" style="font-weight:bold;color:#ff0000">{{ tool.tool_status }}</div>
+                        {% endif %}
+                        {% if tool.tool_status.status_name == 'Blackout' or tool.tool_status.status_name == 'Deactivated' %}
+                            <div class="col-sm-1" style="font-weight:bold;color: #2b2b2b">{{ tool.tool_status }}</div>
+                        {% endif %}
+                        {% if tool.tool_location.location_name == 'Home' %}
+                            <div class="col-sm-1" style="padding-left: 30px"><span
+                                    class="glyphicon glyphicon-home" data-toggle="tooltip"  title="Home"></span></div>
+                        {% endif %}
+                        {% if tool.tool_location.location_name == 'Shed' %}
+                            <div class="col-sm-1" style="padding-left: 30px"><span
+                                    class="glyphicon glyphicon-wrench" data-toggle="tooltip"  title="Shed"></span></div>
+                        {% endif %}
+                        <div class="col-sm-2">{{ tool.tool_condition }}</div>
+                        {% if tool.tool_status.status_name  == 'Deactivated' or tool.tool_owner.email == user.email %}
+                            <div class="col-sm-1">N/A</div>
+                        {% else %}
+                            <div class="col-sm-1">
+                                <button id="submit" name="submit" type="button" class="btn btn-primary btn-sm"
+                                        onclick="window.location.href='/ToolShare/shed/borrow/'+{{ tool.id }}+'/'">
+                                    Borrow
+                                </button>
+                            </div>
+                        {% endif %}
+
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <p>There aren't registered tools. <a href="{% url 'ToolShare:register-tool' %}">Click here to register a
+                tool.</a></p>
+        {% endif %}
+    {% else %}
+        <p>Please sign-in to access this feature.</p>
+    {% endif %}
+
+
+{% endblock %}

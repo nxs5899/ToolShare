@@ -1,0 +1,80 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}ToolShare{% endblock %}
+{% block nabbar_index %}{% endblock %}
+
+{% block body %}
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+        <div class="container">
+            {% if user.is_authenticated != True %}
+                <h1>Hi! Welcome to ToolShare</h1>
+            {% else %}
+                <h1>Hi{{ ' ' }}{{ user.first_name }}! Welcome to ToolShare</h1>
+            {% endif %}
+
+            <p>ToolShare is intended to improve communities by providing an easy mechanism for sharing items between neighbors.</p>
+
+            {% if user.is_authenticated != True %}
+                <p><a style="margin: 10px" class="btn btn-primary btn-lg" role="button" href="{% url 'ToolShare:signin' %}">Sign-in »</a><a style="margin: 10px" class="btn btn-primary btn-lg" role="button" href="{% url 'ToolShare:register-user' %}">Not a member? Register now! »</a></p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Example row of columns -->
+        <div class="row">
+            <div class="col-md-4">
+                {% if user.is_authenticated == True and user.role != 'SYS' %}
+                    <h2>My Tools</h2>
+                    <p>
+                    <ul>
+                        {% if tool.count > 0 %}
+                            {% for field in tool %}
+                                <li>{{ field.name }}</li>
+                            {% endfor %}
+                        {% else %}
+                            <li>No Tools Available</li>
+                        {% endif %}
+                    </ul>
+                    </p>
+                    <p><a class="btn btn-default" href="{% url 'ToolShare:my-tools' %}" role="button">View more »</a></p>
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                {% if user.is_authenticated == True and user.role != 'SYS' %}
+                    <h2>Borrowed Tools</h2>
+                    <ul>
+                        {% if borrowed_tool.count > 0 %}
+                            {% for field in borrowed_tool %}
+                                <li>{{ field.toolId.name }}</li>
+                            {% endfor %}
+                        {% else %}
+                            <li>No Tools Available</li>
+                        {% endif %}
+                    </ul>
+                    <p><a class="btn btn-default" href="{% url 'ToolShare:return-tool' %}" role="button">View more »</a></p>
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                {% if  user.is_authenticated == True and user.role != 'SYS' %}
+                    <h2>Shed Tools</h2>
+                    <p>
+                    <ul>
+                        {% if shed_tool  %}
+                            {% for field in shed_tool %}
+                                <li>{{ field.name }}</li>
+                            {% endfor %}
+                        {% else %}
+                            <li>No Tools Available</li>
+                        {% endif %}
+                    </ul>
+                    </p>
+                    <p><a class="btn btn-default" href="{% url 'ToolShare:shed-tools' %}" role="button">View more »</a></p>
+                {% endif %}
+            </div>
+        </div>
+
+
+    </div> <!-- /container -->
+
+{% endblock %}

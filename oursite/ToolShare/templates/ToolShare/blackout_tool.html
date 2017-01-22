@@ -1,0 +1,130 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}ToolShare - Blackout Tool{% endblock %}
+
+{% block body %}
+    <script>
+         $(function () {
+            var dateFormat = "mm/dd/yy",
+                    from = $("#start_date")
+                            .datepicker({
+                                defaultDate: "+1w",
+                                numberOfMonths: 1,
+                                changeMonth: true,
+                                changeYear: true,
+                                minDate: 0
+                            })
+                            .on("change", function () {
+                                to.datepicker("option", "minDate", getDate(this));
+                            }),
+                    to = $("#end_date").datepicker({
+                        defaultDate: "+1w",
+                        numberOfMonths: 1,
+                        changeMonth: true,
+                        changeYear: true,
+                    })
+                            .on("change", function () {
+                                from.datepicker("option", "maxDate", getDate(this));
+                            });
+
+            function getDate(element) {
+                var date;
+                try {
+                    date = $.datepicker.parseDate(dateFormat, element.value);
+                } catch (error) {
+                    date = null;
+                }
+
+                return date;
+            }
+        });
+    </script>
+    {% if user.is_authenticated %}
+        <form action="/ToolShare/my-tools/blackout-tool/{{ tool.id }}/" method="post" class="form-horizontal">
+            {% csrf_token %}
+
+            <legend>Blackout Tool</legend>
+            <fieldset>
+                <div class="jumbotron"
+                     style="padding-bottom: 20px;padding-left: 10px;padding-right: 10px;padding-top: 10px;">
+                    <legend style="font-size:18px;">Tool Details</legend>
+
+                    <div class="row" style="margin:5px">
+                        <div class="col-sm-12" style="padding:8px; background: #f7dcc5"><b>Tool:</b> {{ tool.name }}
+                        </div>
+
+                    </div>
+                    <div class="row" style="margin:5px">
+                        <div class="col-sm-3" style="padding:8px; background: #c5eff7">
+                            <b>Category:</b> {{ tool.tool_category }}</div>
+                        {% if tool.tool_location.location_name == 'Home' %}
+                            <div class="col-sm-3" style="padding:8px; background: #c5eff7">
+                            <b>Location:</b> <span class="glyphicon glyphicon-home"></span> </div>
+                        {% endif %}
+                        {% if tool.tool_location.location_name == 'Shed' %}
+                            <div class="col-sm-3" style="padding:8px; background: #c5eff7">
+                            <b>Location:</b> <span class="glyphicon glyphicon-wrench"></span> </div>
+                        {% endif %}
+                        <div class="col-sm-3" style="padding:8px; background: #c5eff7">
+                            <b>Condition:</b> {{ tool.tool_condition }}</div>
+                        <div class="col-sm-3" style="padding:8px; background: #c5eff7"><b>Added
+                            On:</b> {{ tool.created_at }}</div>
+                    </div>
+
+
+                </div>
+
+
+
+                    <!-- Text input-->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="start_date">Start Date</label>
+                        <div class="col-md-2">
+                            <input id="start_date" value="{{ form.start_date.value|default:'' }}" name="start_date"
+                                   type="text"
+                                   placeholder="mm/dd/yyyy" class="form-control input-md" readonly
+                                   style="cursor:pointer; background-color: #FFFFFF">
+                            {{ form.errors.start_date }}
+                        </div>
+                    </div>
+
+                    <!-- Text input-->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="end_date">End Date</label>
+                        <div class="col-md-2">
+                            <input id="end_date" value="{{ form.end_date.value|default:'' }}" name="end_date"
+                                   type="text"
+                                   placeholder="mm/dd/yyyy" class="form-control input-md" readonly
+                                   style="cursor:pointer; background-color: #FFFFFF">
+                            {{ form.errors.end_date }}
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="display: none">
+                        <div class="col-md-2">
+                            <input id="toolId" value="{{ tool.id }}" name="toolId" type="hidden"
+                                   class="form-control input-md">
+                        </div>
+                    </div>
+
+                   <div class="form-group">
+                        <label class="col-md-4 control-label">&nbsp;</label>
+                        {{ form.non_field_errors }}
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="submit"></label>
+                        <div class="col-md-8">
+                            <button type="submit" id="submit" name="Blackout" class="btn btn-primary">Blackout</button>
+                            <button type="button" id="cancel" name="cancel" class="btn btn-default"
+                                  onclick="window.location.href='/ToolShare/'">Cancel</button>
+                        </div>
+                    </div>
+
+            </fieldset>
+        </form>
+    {% else %}
+        <p>Please sign-in to access this feature.</p>
+    {% endif %}
+
+{% endblock %}

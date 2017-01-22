@@ -1,0 +1,43 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}ToolShare - Acknowledge Return{% endblock %}
+{% block navbar_acknowledge-tool-return %}active{% endblock %}
+
+{% block body %}
+
+    {% if user.is_authenticated %}
+        <form action="/ToolShare/ack-return/{{request_id}}/" method="post" class="form-horizontal">
+            {% csrf_token %}
+
+             <fieldset>
+                <legend>Acknowledge Return</legend>
+                <div class="form-group">
+                     <label class="col-md-4 control-label" for="tool_condition">Condition</label>
+                    <div class="col-md-4">
+                        <select id="tool_condition"  name="tool_condition"  class="form-control input-md" required>
+                            {% for condition in tool_conditions %}
+                                <option value="{{condition}}">{{condition.condition_name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                 {% if errors %}
+                    {% for error in errors %}
+                        <p style="text-align: center"><strong>{{ error }}</strong></p>
+                    {% endfor %}
+                 {% endif %}
+
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="submit"></label>
+                    <div class="col-md-4">
+                        <button type="submit" id="submit" name="submit" class="btn btn-primary">Save</button>
+                        <button id="cancel" name="cancel" type="button" class="btn btn-default" onclick="window.location.href='/ToolShare/notifications/'">Cancel</button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    {% else %}
+        <p>You are not authorized to view this page</p>
+    {% endif %}
+
+{% endblock %}

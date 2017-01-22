@@ -1,0 +1,111 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}ToolShare - Tool Details{% endblock %}
+{% block navbar_return-tools %}active{% endblock %}
+
+
+{% block body %}
+
+    {% if user.is_authenticated %}
+        <form action="/ToolShare/shed/return-tools/" method="post" class="form-horizontal" id="returnForm">
+            {% csrf_token %}
+
+            <fieldset>
+
+                <!-- Form Name -->
+                <legend>Currently Borrowed Tools</legend>
+                {% if tool_list %}
+                    <div class="row grid table-bordered">
+                        <div class="col-sm-3" style="background: burlywood">Tool Name</div>
+                        <div class="col-sm-2" style="background: burlywood">Category</div>
+                        <div class="col-sm-3" style="background: burlywood">Borrow Start Date</div>
+                        <div class="col-sm-3" style="background: burlywood">Borrow End Date</div>
+                        <div class="col-sm-1" style="background: burlywood">Action</div>
+                    </div>
+                    {% for tool in tool_list %}
+                        <div class="row grid table-bordered">
+                            <div class="col-sm-3">{{ tool.toolId.name }}</div>
+                            <div class="col-sm-2">{{ tool.toolId.tool_category }}</div>
+                            <div class="col-sm-3">{{ tool.start_date }}</div>
+                            <div class="col-sm-3">{{ tool.end_date }}</div>
+                            <div class="col-sm-1">
+                                <button id="submit" name="submit" type="button" class="btn btn-primary btn-sm"
+                                        onclick="populateToolIdTextBox('{{ tool.toolId.id }}','{{ tool.id }}')">Return
+                                </button>
+                            </div>
+
+                        </div>
+                    {% endfor %}
+                    <form>
+                        <div style="display: none">
+                            <input type="text" id="toolId" name="toolId">
+                            <input type="text" id="borrowId" name="borrowId">
+                            <button type="submit" id="dummyButton" value="submit">Submit</button>
+                        </div>
+                    </form>
+                    </fieldset>
+                {% else %}
+                    <p>You do not have any tools borrowed currently <a href="{% url 'ToolShare:shed-tools' %}">Click here to borrow a tool.</a></p>
+                {% endif %}
+        </form>
+        <br><br>
+        <form action="/ToolShare/shed/return-tools/" method="post" class="form-horizontal" >
+        {% csrf_token %}
+            <fieldset>
+                <legend>Future Requests</legend>
+                {% if future_requests %}
+                    <div class="row grid table-bordered">
+                        <div class="col-sm-3" style="background: burlywood">Tool Name</div>
+                        <div class="col-sm-2" style="background: burlywood">Category</div>
+                        <div class="col-sm-3" style="background: burlywood">Borrow Start Date</div>
+                        <div class="col-sm-3" style="background: burlywood">Borrow End Date</div>
+                        <div class="col-sm-1" style="background: burlywood">Action</div>
+                    </div>
+                    {% for request in future_requests %}
+                        <div class="row grid table-bordered">
+                            <div class="col-sm-3">{{ request.toolId.name }}</div>
+                            <div class="col-sm-2">{{ request.toolId.tool_category }}</div>
+                            <div class="col-sm-3">{{ request.start_date }}</div>
+                            <div class="col-sm-3">{{ request.end_date }}</div>
+                            <div class="col-sm-1">
+                                <button id="submit" name="submit" type="button" class="btn btn-primary btn-sm"
+                                        onclick="cancelBorrowRequest('{{request.toolId.id}}','{{request.id}}')">Cancel
+                                </button>
+                            </div>
+                        </div>
+                        <form>
+                            <div style="display: none">
+                                <input type="text" id="request_toolid" name="request_toolid">
+                                <input type="text" id="request_id" name="request_id">
+                                <button type="submit" id="dummyCancelButton" value="submit">Submit</button>
+                            </div>
+                        </form>
+                    {% endfor %}
+                    {% else %}
+                        <p>You do not have any borrow requests in the future </p>
+                {% endif %}
+            </fieldset>
+        </form>
+        <script>
+            function populateToolIdTextBox(toolid, borrowid) {
+                $('#toolId').val(toolid);
+                $('#borrowId').val(borrowid);
+
+                $('#dummyButton').click();
+            }
+            function cancelBorrowRequest(request_toolid, request_id){
+                console.log(request_id);
+                $('#request_toolid').val(request_toolid);
+                $('#request_id').val(request_id);
+                $('#dummyCancelButton').click();
+            }
+
+        </script>
+
+
+
+    {% else %}
+        <p>Please sign-in to access this feature.</p>
+    {% endif %}
+
+
+{% endblock %}

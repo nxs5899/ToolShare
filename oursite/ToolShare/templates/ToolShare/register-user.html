@@ -1,0 +1,137 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}ToolShare - User Registration{% endblock %}
+{% block navbar_register-user %}active{% endblock %}
+
+{% block body %}
+    <script>
+        $( function() {
+            $( "#date_of_birth" ).datepicker({
+                changeMonth: true,
+                changeYear: true,
+                maxDate: '-18Y'
+            });
+        } );
+    </script>
+
+    {% if user.is_authenticated %}
+        <p>This functionality is disabled for signed-in users</p>
+    {% else %}
+        <form action="/ToolShare/register-user/" method="post" class="form-horizontal">
+            {% csrf_token %}
+
+            <fieldset>
+
+                <!-- Form Name -->
+                <legend>User Registration</legend>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="email">E-Mail</label>
+                    <div class="col-md-4">
+                        <input id="email" value="{{ form.email.value|default:'' }}" name="email" type="email" placeholder="me@email.com" class="form-control input-md" required>
+                        {{ form.errors.email }}
+                    </div>
+                </div>
+
+                <!-- Password input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="password1">Password</label>
+                    <div class="col-md-4">
+                        <input id="password1" value="{{ form.email.password1|default:'' }}" name="password1" type="password"  class="form-control input-md" required>
+                        {{ form.errors.password1 }}
+                    </div>
+                </div>
+
+                <!-- Password input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="password2">Confirm Password</label>
+                    <div class="col-md-4">
+                        <input id="password2" value="{{ form.email.password2|default:'' }}" name="password2" type="password"  class="form-control input-md" required>
+                        {% autoescape off %}{{ form.password2.help_text }}{% endautoescape %}
+                        {{ form.errors.password2 }}
+                    </div>
+                </div>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="first_name">First Name</label>
+                    <div class="col-md-4">
+                        <input id="first_name" value="{{ form.first_name.value|default:'' }}" name="first_name" type="text" placeholder="John" class="form-control input-md" required>
+                        {{ form.errors.first_name }}
+                    </div>
+                </div>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="last_name">Last Name</label>
+                    <div class="col-md-4">
+                        <input id="last_name" value="{{ form.last_name.value|default:'' }}" name="last_name" type="text" placeholder="Smith" class="form-control input-md" required="">
+                        {{ form.errors.last_name }}
+                    </div>
+                </div>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="telephone">Telephone</label>
+                    <div class="col-md-4">
+                        <input id="telephone" value="{{ form.telephone.value|default:'' }}" maxlength="10" minlength="7" name="telephone" type="tel" placeholder="8675309" class="form-control input-md" required="">
+                        {{ form.errors.telephone }}
+                    </div>
+                </div>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="address_line1">Address Line 1</label>
+                    <div class="col-md-4">
+                        <input id="address_line1" value="{{ form.address_line1.value|default:'' }}" name="address_line1" type="text" placeholder="123 Any Street" class="form-control input-md" required="">
+                        {{ form.errors.address_line1 }}
+                    </div>
+                </div>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="address_line2">Address Line 2</label>
+                    <div class="col-md-4">
+                        <input id="address_line2" value="{{ form.address_line2.value|default:'' }}" name="address_line2" type="text" placeholder="Apt 69" class="form-control input-md">
+                        {{ form.errors.address_line2 }}
+                    </div>
+                </div>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="zipcode">Zip Code</label>
+                   {% comment %}
+                        <input id="zipcode" value="{{ form.zipcode.value|default:'' }}" name="zipcode" type="text" placeholder="14623" form-control input-md" required>
+                        {{ form.errors.zipcode }}
+                   {% endcomment %}
+                    <div class="col-md-4">
+                        <input id="zipcode" name="zipcode" placeholder="14623" maxlength="5" class="form-control input-md" pattern="[0-9]{5}" title="The zipcode must be 5 digit number" required>
+                    </div>
+                </div>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="date_of_birth">Date of Birth</label>
+                    <div class="col-md-4">
+                        <input id="date_of_birth" value="{{ form.fields.date_of_birth.value|default:'' }}" name="date_of_birth" type="text" placeholder="mm/dd/yyyy" class="form-control input-md" readonly required style="cursor:pointer; background-color: #FFFFFF">
+                        Must be 18+ to join ToolShare.
+                        {{ form.errors.date_of_birth }}
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="submit"></label>
+                    <div class="col-md-8">
+                        <button type="submit" id="submit" name="submit" class="btn btn-primary">Save</button>
+                        <button type="button" id="cancel" name="cancel" class="btn btn-default" onclick="window.location.href='/ToolShare/'">Cancel</button>
+                    </div>
+                </div>
+
+            </fieldset>
+
+            <!-- <ul>{{form.as_ul}}</ul> -->
+
+        </form>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}ToolShare - View Notifications{% endblock %}
+{% block navbar_notifications %}active{% endblock %}
+
+{% block body %}
+    {% if user.is_authenticated %}
+        {% if notifications %}
+            <ul class="list-group">
+            {% for notification in notifications %}
+                <li class="list-group-item">
+                    <strong class="list-group-item-heading">{{ notification.get_display_title }}</strong>
+                    <h5 class="list-group-item-text">{{ notification.message |safe }}</h5>
+                     <h6 class="text-muted">Notification Received: {{ notification.created_at |date:"SHORT_DATETIME_FORMAT" }}</h6>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p> You have no notifications</p>
+        {% endif %}
+    {% else %}
+        <p>Please login to view your notifications</p>
+    {% endif %}
+{% endblock %}

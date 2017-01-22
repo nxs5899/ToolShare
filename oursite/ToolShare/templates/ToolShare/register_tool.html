@@ -1,0 +1,124 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}ToolShare - Register Tool{% endblock %}
+{% block navbar_register-tools %}active{% endblock %}
+
+{% block body %}
+
+    {% if user.is_authenticated %}
+        <form action="/ToolShare/register-tool/" method="post" class="form-horizontal">
+            {% csrf_token %}
+
+            <fieldset>
+
+                <!-- Form Name -->
+                <legend>Add Tool</legend>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="name">Tool Name</label>
+                    <div class="col-md-4">
+                        <input id="name" value="{{ form.name.value|default:'' }}" name="name" type="text"  placeholder="Name" class="form-control input-md" required>
+                        {{ form.errors.name }}
+                    </div>
+                </div>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="description">Description</label>
+                    <div class="col-md-4">
+                        <textarea id="description" value="{{ form.description.value|default:'' }}" name="description" type="text" placeholder="Description" class="form-control input-md"  rows="5"></textarea>
+                        {{ form.errors.description }}
+                    </div>
+                </div>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="v">Instructions</label>
+                    <div class="col-md-4">
+                        <textarea id="instructions" value="{{ form.instructions.value }}" name="instructions" type="text" placeholder="Instructions" class="form-control input-md"  rows="5"></textarea>
+                        {{ form.errors.instructions }}
+                    </div>
+                </div>
+
+                <!-- Select input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="tool_category">Category</label>
+                    <div class="col-md-4">
+                        <select id="tool_category"  name="tool_category"  class="form-control input-md" required>
+                            {% for x,y in form.fields.tool_category.choices %}
+                                <option value="{{ x }}">{{ y }}</option>
+
+                            {% endfor %}
+                        </select>
+                        {{ form.errors.tool_category }}
+                    </div>
+                </div>
+
+                <!-- Select input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="tool_location">Location</label>
+                    <div class="col-md-4">
+                        <select id="tool_location"  name="tool_location"  class="form-control input-md" required>
+                            {% for x,y in form.fields.tool_location.choices %}
+                                <option value="{{ x }}">{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                        {{ form.errors.tool_location }}
+                    </div>
+                </div>
+
+                <!-- Select input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="tool_condition">Condition</label>
+                    <div class="col-md-4">
+                        <select id="tool_condition"  name="tool_condition"  class="form-control input-md" required>
+                            {% for x,y in form.fields.tool_condition.choices %}
+                                <option value="{{ x }}">{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                        {{ form.errors.tool_condition }}
+                    </div>
+                </div>
+
+                <!-- Select input-->
+                {% comment %}<div class="form-group">
+                    <label class="col-md-4 control-label" for="tool_status">Status</label>
+                    <div class="col-md-4">
+                        <select id="tool_status"  name="tool_status"  class="form-control input-md" required>
+                            {% for x,y in form.fields.tool_status.choices %}
+                                <option value="{{ x }}">{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                        {{ form.errors.tool_status }}
+                    </div>
+                </div>{% endcomment %}
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="tool_owner"></label>
+                    <div class="col-md-4">
+                        <input id="tool_owner" value="{{ request.user.pk }}" name="tool_owner" type="hidden"  class="form-control input-md"  readonly diabled>
+                        {{ form.errors.tool_owner }}
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="submit"></label>
+                    <div class="col-md-8">
+                        <button id="submit" name="submit" type="submit" class="btn btn-primary">Save</button>
+                        <button id="cancel" name="cancel" type="button" class="btn btn-default" onclick="window.location.href='/ToolShare/my-tools/'">Cancel</button>
+                    </div>
+                </div>
+
+            </fieldset>
+
+
+        </form>
+    {% else %}
+        <p>Please sign-in to access this feature.</p>
+    {% endif %}
+
+
+{% endblock %}
+   

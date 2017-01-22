@@ -1,0 +1,188 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}ToolShare - My Tools{% endblock %}
+{% block navbar_my-tools %}active{% endblock %}
+
+{% block body %}
+
+    <script>
+        function AddSC() {
+            var obj = $("#selectAllUsers option:selected");
+            $.each(obj, function (index, item) {
+                $("#selectShedCoordinators").append($(this));
+                $
+            });
+        }
+
+        function RemoveSC() {
+            var scCount = $("#selectShedCoordinators option").length;
+            if (scCount <= 1) {
+                alert('A shed must have atleast one Shed Coordinator');
+            }
+            else {
+                var obj = $("#selectShedCoordinators option:selected");
+                $.each(obj, function (index, item) {
+                    $("#selectAllUsers").append($(this));
+                });
+            }
+        }
+    </script>
+
+
+    {% if user.is_authenticated %}
+        {% if request.user.role == 'SHD' and request.user.zipcode == shed.zip_code %}
+            <form action="/ToolShare/shed/shed-update/{{ shed.id }}/" method="post" class="form-horizontal">
+                {% csrf_token %}
+                <fieldset>
+
+                    <!-- Form Name -->
+                    <legend>Shed Details</legend>
+
+                    <!-- Text input-->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="name">Shed Name</label>
+                        <div class="col-md-4">
+                            <input id="name" value="{{ form.name.value|default:'' }}" name="name" type="text"
+                                   readonly
+                                   class="form-control input-md">
+                            {{ form.errors.name }}
+                        </div>
+                    </div>
+
+                    <!-- Text input-->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="description">Description</label>
+                        <div class="col-md-4">
+                <textarea id="description" name="description" placeholder="Description"
+                          class="form-control input-md" required
+                          rows="5">{{ form.description.value|default:'' }}</textarea>
+                            {{ form.errors.description }}
+                        </div>
+                    </div>
+
+                    <!-- Text input-->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="address">Address</label>
+                        <div class="col-md-4">
+                <textarea id="address" name="address" placeholder="Address"
+                          class="form-control input-md" required rows="5">{{ form.address.value|default:'' }}</textarea>
+                            {{ form.errors.address }}
+                        </div>
+                    </div>
+
+                    <!-- Start Old Code -->  <!--
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="selectShedCoordinators">Shed Coordinator</label>
+                        <div class="col-md-4">
+                            <select id="selectShedCoordinators" name="selectShedCoordinators" multiple="multiple"
+                                    style="width:200px;">
+                                {% for user in shed_coordinators %}
+                                    <option value="{{ user.pk }}">{{ user.get_full_name }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <button id="removeSC" type="button" onclick="RemoveSC();">Remove Shed Coordinator(s)
+                            </button>
+                            <button id="addSC" type="button" onclick="AddSC();">Add Shed Coordinator(s)</button>
+
+                            <script>
+                                $('select#selectAllUsers option:contains({{shed_coordinators}})').remove()
+                            </script>
+                            <select id="selectAllUsers" multiple="multiple" name="selectAllUsers"
+                                    style="width:200px">
+                                {% for user in all_shed_users %}
+                                    <option value="{{ user.pk }}">{{ user.get_full_name }}</option>
+                                {% endfor %}
+                            </select>
+
+
+                            <input id="newSC" name="newSC" type="hidden" class="form-control input-md">
+
+
+                        </div>
+                    </div>
+                    --> <!-- End Old Code -->
+
+                    <!-- Start New Code -->
+                    <legend>Add/Remove Shed Coordinator</legend>
+
+                    <div class="jumbotron"
+                         style="padding-bottom: 20px;padding-left: 10px;padding-right: 10px;padding-top: 10px;">
+
+                        <div class="row">
+                            <div class="col-md-5">All Users</div>
+                            <div class="col-md-2">&nbsp;</div>
+                            <div class="col-md-5">Shed Coordinators</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-5">
+                                <script>
+                                   // $('select#selectAllUsers option:contains({{shed_coordinators}})').remove()
+                                </script>
+                                <select id='selectAllUsers' name='selectAllUsers' multiple style="width:100%">
+                                    {% for user in all_shed_users %}
+                                        <option value="{{ user.pk }}">{{ user.get_full_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button type='button' class="btn btn-default btn-sm" type="button" id='removeSC'
+                                        onclick='AddSC();'><span class="glyphicon glyphicon-arrow-right"></span>
+                                </button>
+                                <br/>
+                                <button type='button' class="btn btn-default btn-sm" type="button" id='addSC'
+                                        onclick='RemoveSC();'><span class="glyphicon glyphicon-arrow-left"></span>
+                                </button>
+                            </div>
+                            <div class="col-md-5">
+                                <select id='selectShedCoordinators' name='selectShedCoordinators' multiple
+                                        style="width:100%">
+                                    {% for user in shed_coordinators %}
+                                        <option value="{{ user.pk }}">{{ user.get_full_name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <input id="newSC" name="newSC" type="hidden" class="form-control input-md">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End New Code -->
+
+
+                    <!-- Buttons -->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="submit"></label>
+                        <div class="col-md-8">
+                            <button id="submit" type="button" name="submit" class="btn btn-primary"
+                                    onclick="populateSCTextBox();">Save
+                            </button>
+                            <button id="cancel" type="button" name="cancel" class="btn btn-default"
+                                    onclick="window.location.href='/ToolShare/shed-tools/'">Cancel
+                            </button>
+                            <button type="submit" id="dummyButton" value="submit" style="display: none">Submit</button>
+                        </div>
+                    </div>
+
+                    <script>
+                        function populateSCTextBox() {
+                            var selectedItems = $("#selectShedCoordinators > option");
+                            selectedItems.each(function () {
+                                currentData = $('#newSC').val();
+                                $('#newSC').val(currentData + ';' + $(this).val());
+                            });
+                            $('#dummyButton').click();
+                        }
+
+                    </script>
+
+                </fieldset>
+
+            </form>
+        {% else %}
+            This feature is only available for Shed Coordinators.
+        {% endif %}
+    {% else %}
+        <p>Please sign-in to access this feature.</p>
+    {% endif %}
+
+
+{% endblock %}

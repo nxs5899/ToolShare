@@ -1,0 +1,26 @@
+.navbar{
+    border-radius: 0;
+}
+
+.navbar-brand{
+    font-family:Shrikhand,cursive;
+}
+
+.row.grid:nth-child(1){
+    background:lavenderblush;
+}
+.row.grid:nth-child(even){
+    background:lavender;
+}
+
+.required {
+    position: absolute;
+    margin-left: -10px;
+    color: #FB0000;
+    font-size: 15px;
+}
+/*
+body {
+    background: white url("../images/background.png");
+}
+*/

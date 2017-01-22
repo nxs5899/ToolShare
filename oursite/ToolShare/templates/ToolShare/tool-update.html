@@ -1,0 +1,153 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}ToolShare - Update Tool{% endblock %}
+{% block navbar_my-tools %}active{% endblock %}
+
+{% block body %}
+
+    {% if user.is_authenticated %}
+        {% if tool.tool_owner.email == user.email %}
+            <form action="/ToolShare/my-tools/tool-update/{{ tool.id }}/" method="post" class="form-horizontal">
+            {% csrf_token %}
+
+            <!--
+            {% for field in form %}
+                {{ field.name }}
+                {{ field.value }}
+            {% endfor %}
+            <hr/>
+            -->
+
+            <fieldset>
+
+                <!-- Form Name -->
+                <legend>Tool Details</legend>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="name">Tool Name</label>
+                    <div class="col-md-4">
+                        <input id="name" value="{{ tool.name|default:'' }}" name="name" type="text"  placeholder="Name" class="form-control input-md" required>
+                        {{ form.errors.name }}
+                    </div>
+                </div>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="description">Description</label>
+                    <div class="col-md-4">
+                        <textarea id="description" name="description" placeholder="Description" class="form-control input-md"  rows="5">{{ form.description.value|default:'' }}</textarea>
+                        {{ form.errors.description }}
+                    </div>
+                </div>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="instructions">Instructions</label>
+                    <div class="col-md-4">
+                        <textarea id="instructions" name="instructions"  placeholder="Instructions" class="form-control input-md"  rows="5">{{ form.instructions.value|default:'' }}</textarea>
+                        {{ form.errors.instructions }}
+                    </div>
+                </div>
+
+                <!-- Select input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="tool_category">Category</label>
+                    <div class="col-md-4">
+                        <select id="tool_category"  name="tool_category"  class="form-control input-md" required>
+                            {% for x,y in form.fields.tool_category.choices %}
+                                <option value="{{ x }}"{% if tool.tool_category.id == x %} selected{% endif %}>{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                        {{ form.errors.tool_category }}
+                    </div>
+                </div>
+
+                <!-- Select input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="tool_location">Location</label>
+                    <div class="col-md-4">
+                        <select id="tool_location"  name="tool_location"  class="form-control input-md" required>
+                            {% for x,y in form.fields.tool_location.choices %}
+                                <option value="{{ x }}"{% if tool.tool_location.id == x %} selected{% endif %}>{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                        {{ form.errors.tool_location }}
+                    </div>
+                </div>
+
+                <!-- Select input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="tool_condition">Condition</label>
+                    <div class="col-md-4">
+                        <select id="tool_condition"  name="tool_condition"  class="form-control input-md" required>
+                            {% for x,y in form.fields.tool_condition.choices %}
+                                <option value="{{ x }}"{% if tool.tool_condition.id == x %} selected{% endif %}>{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                        {{ form.errors.tool_condition }}
+                    </div>
+                </div>
+
+                <!-- Select input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="tool_status">Status</label>
+                    <div class="col-md-4">
+                        <select id="tool_status"  name="tool_status"  class="form-control input-md" required>
+                            {% for x,y in form.fields.tool_status.choices %}
+                                <option value="{{ x }}"{% if tool.tool_status.id == x %} selected{% endif %}>{{ y }}</option>
+                            {% endfor %}
+
+                        </select>
+                        {{ form.errors.tool_status }}
+                    </div>
+                </div>
+
+                            <!-- Text input-->
+                <div class="form-group" style="display: none">
+                    <div class="col-md-2">
+                        <input id="shed" value="{{ tool.shed.id|default:'' }}" name="shed" type="hidden" class="form-control input-md">
+                    </div>
+                </div>
+
+                <!-- Text input-->
+                <div class="form-group" style="display: none">
+                    <div class="col-md-2">
+                        <input id="tool_owner" value="{{ form.tool_owner.value|default:'' }}" name="tool_owner" type="hidden" class="form-control input-md">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-md-4 control-label" >&nbsp;</label>
+                    {{ form.non_field_errors }}
+                </div>
+
+                {% comment %}{% if tool.tool_status.status_name != 'Borrowed' %}{% endcomment %}
+                    <!-- Buttons -->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="submit"></label>
+                        <div class="col-md-8">
+                            <button id="submit" name="submit" type="submit" class="btn btn-primary">Save</button>
+                            <button id="cancel" name="cancel" type="button" class="btn btn-default" onclick="window.location.href='/ToolShare/my-tools/'">Cancel</button>
+                        </div>
+                    </div>
+                    <script>
+                    $('select#tool_status option:contains("Borrowed")').remove()
+                    </script>
+               {% comment %} {% else %}
+                    This tool is currently being borrowed and cannot be updated
+                    <script>$("form :input").attr("disabled", true);</script>
+                {% endif %}{% endcomment %}
+
+            </fieldset>
+
+        </form>
+        {% else %}
+            <p>You cannot edit a tool that do not own</p>
+        {% endif %}
+    {% else %}
+        <p>Please sign-in to access this feature.</p>
+    {% endif %}
+
+
+{% endblock %}
+   

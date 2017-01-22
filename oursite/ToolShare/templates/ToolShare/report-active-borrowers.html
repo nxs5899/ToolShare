@@ -1,0 +1,66 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}Most Active Borrowers{% endblock %}
+{% block navbar_reports %}active{% endblock %}
+{% block navbar_report_most_active_borrowers %}active{% endblock %}
+
+{% block body %}
+    <legend>Report - Most Active Borrowers</legend>
+    {% if  user.is_authenticated == True and user.role == 'SYS' %}
+
+    <div class="jumbotron" style="padding-bottom: 20px;padding-left: 10px;padding-right: 10px;padding-top: 10px;">
+
+        <form action="/ToolShare/report/most-active-borrowers/" method="post" class="form-horizontal">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="tool_id">Select ShareZone</label>
+                <div class="col-md-4">
+                    <select id="zone_id" name="zone_id" class="form-control input-md">
+                        {% for zone in zones %}
+                            <option value="{{ zone.id }}" {% if zone.id == currentzone.pk %} selected{% endif %}>{{ zone.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <br>
+                    <button type="submit" id="submit" name="submit" class="btn btn-primary">Show Report</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <h4>Report data for {{ currentzone }}</h4>
+    <table class="table" data-sorting="true" data-paging="true" data-filtering="true">
+        <thead>
+        <tr>
+            <th data-name="borrowerID" data-type="number">ID</th>
+            <th data-name="borrowerName">Name</th>
+            <th data-name="borrowerEmail" >Email</th>
+            <th data-name="borrowerStatus" >Status</th>
+            <th data-name="borrowCount"  data-sorted="true" data-direction="DESC" data-type="number">Number of Borrowed Tools</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for keys, values in borrowers.items %}
+            <tr data-expanded="false">
+                <td>{{ keys.pk }}</td>
+                <td>{{ keys }}</td>
+                <td>{{ keys.email }}</td>
+                {% if keys.is_deleted == False %}
+                    <td>Active</td>
+                {% else %}
+                    <td >Deactivated</td>
+                {% endif %}
+                <td>{{ values }}</td>
+                <td>{{ values }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        jQuery(function ($) {
+            $('.table').footable();
+        });
+    </script>
+
+{% endblock %}

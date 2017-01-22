@@ -1,0 +1,39 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}ToolShare - Exit Sharezone{% endblock %}
+{% block navbar_exit-sharezone %}active{% endblock %}
+
+{% block body %}
+
+    {% if user.is_authenticated %}
+        <form action="/ToolShare/exit-sharezone/" method="post" class="form-horizontal">
+            {% csrf_token %}
+
+             <fieldset>
+                <legend>Exit Sharezone</legend>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="zipcode">Zip Code for new ShareZone</label>
+                    <div class="col-md-4">
+                       <input id="zipcode" name="zipcode" placeholder="14623" class="form-control input-md" pattern="[0-9]{5}" title="The zipcode must be 5 digit number" required>
+                    </div>
+                </div>
+
+                 {% if errors %}
+                    {% for error in errors %}
+                        <p style="text-align: center"><strong>{{ error }}</strong></p>
+                    {% endfor %}
+                 {% endif %}
+
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="submit"></label>
+                    <div class="col-md-4">
+                        <button type="submit" id="submit" name="submit" class="btn btn-primary">Submit</button>
+                        <button id="cancel" name="cancel" type="button" class="btn btn-default" onclick="window.location.href='/ToolShare/myprofile/'">Cancel</button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    {% else %}
+        <p>You are not authorized to view this page</p>
+    {% endif %}
+
+{% endblock %}

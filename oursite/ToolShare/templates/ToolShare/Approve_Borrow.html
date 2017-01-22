@@ -1,0 +1,98 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}ToolShare - Approve Request{% endblock %}
+{% block navbar_approve-request %}active{% endblock %}
+
+{% block body %}
+    {% if user.is_authenticated %}
+        <!-- <ul>{{form.as_ul}}</ul> -->
+        {% if NoBorrowRequest == 'true' or   obj.return_date != None%}
+            There isn't a Borrow Request available for the specified ID. You might be trying to access a past request that has already been approved/rejected.
+        {% else %}
+
+        <form action="/ToolShare/request/{{ BorrowRequestId }}/" method="post" class="form-horizontal">
+            {% csrf_token %}
+
+            <fieldset>
+
+                <!-- Form Name -->
+                <legend>Approve Request</legend>
+
+              <div class="form-group">
+                    <label class="col-md-4 control-label" for="BorrowerId">Borrower</label>
+                    <div class="col-md-4">
+                        <label id="BorrowerId" name="BorrowerId" class="col-md-4 control-label">{{ BorrowerId }}</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="BorrowerId">Borrower Email</label>
+                    <div class="col-md-4">
+                        <label id="BorrowerId" name="BorrowerId" class="col-md-4 control-label">({{BorrowerId.email}})</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="ToolId">Requested Tool</label>
+                    <div class="col-md-4">
+                        <label id="ToolId" name="ToolId" class="col-md-4 control-label">{{ ToolId.name }}</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="ToolId">Borrower Notes</label>
+                    <div class="col-md-4">
+                        <label id="ToolId" name="ToolId" class="col-md-4 control-label">{{ BorrowerNotes }}</label>
+                    </div>
+                </div>
+                 <div class="form-group">
+                    <label class="col-md-4 control-label" for="StartDate">Start Date</label>
+                    <div class="col-md-4">
+                        <label id="StartDate" name="StartDate" class="col-md-4 control-label">{{ StartDate }}</label>
+                    </div>
+                </div>
+                 <div class="form-group">
+                    <label class="col-md-4 control-label" for="EndDate">End Date</label>
+                    <div class="col-md-4">
+                        <label id="EndDate" name="EndDate" class="col-md-4 control-label">{{ EndDate }}</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="submit"></label>
+                    <div class="col-md-8">
+                        <button id="submit" name="Approve" class="btn btn-primary" onclick="ApproveRequest('{{BorrowerId.pk}}')">Approve</button>
+                        <button id="cancel" name="Reject" class="btn btn-default"
+                                onclick="cancelBorrowRequest('{{BorrowRequestId}}')">Reject
+                        </button>
+                    </div>
+                </div>
+
+                            <div style="display: none">
+                                <input type="text" id="BorrowRequestId" name="BorrowRequestId">
+                                <button type="submit" id="dummyCancelButton" value="submit">Submit</button>
+                            </div>
+
+
+                            <div style="display: none">
+                                <input type="text" id="borrowerId2" name="borrowerId2">
+                                <button type="submit" id="dummyApproveButton" value="submit">Submit</button>
+                            </div>
+
+
+            </fieldset>
+        </form>
+      {% endif %}
+    {% endif %}
+    <script>
+          function cancelBorrowRequest(BorrowRequestId){
+
+                        $('#BorrowRequestId').val(BorrowRequestId);
+                        $('#dummyCancelButton').click();
+                    }
+          function ApproveRequest(borrowerId){
+
+                        $('#borrowerId2').val(borrowerId);
+                        $('#dummyApproveButton').click();
+
+            }
+     </script>
+
+{% endblock %}
+

@@ -1,0 +1,36 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}ToolShare - User Registration Status{% endblock %}
+
+
+{% block body %}
+
+
+
+    <form action="/ToolShare/signin/" method="post" class="form-horizontal">
+        {% csrf_token %}
+
+        <fieldset>
+
+            <!-- Form Name -->
+            <legend>User Registration Status</legend>
+
+             {% if user.approval_status == 'Approved' and user.role == 'SHD' %}
+                Your registration status is Approved. <br><br>
+                You have been assigned the role of Shed Administrator/Coordinator. Please <a href='/ToolShare/shed/shed-update/{{ user.get_shed.id }}/'> click here </a> to update the Shed details.
+            {% endif %}
+
+             {% if user.approval_status == 'Approved' and user.role == 'BAS' %}
+                Your registration status is Approved. <br><br>
+            {% endif %}
+
+            {% if user.approval_status == 'Pending' or user.approval_status == 'Rejected' %}
+                Your registration status is {{ user.approval_status }}. <br><br>
+                You cannot proceed unless your request has been approved.
+            {% endif %}
+
+
+        </fieldset>
+
+    </form>
+
+{% endblock %}

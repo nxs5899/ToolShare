@@ -1,0 +1,65 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}Recent Borrowed Tools{% endblock %}
+{% block navbar_reports %}active{% endblock %}
+{% block navbar_report_recent_borrowed_tools %}active{% endblock %}
+
+{% block body %}
+    <legend>Report - Currently Borrowed Tools</legend>
+    {% if  user.is_authenticated == True and user.role == 'SYS' %}
+
+    <div class="jumbotron" style="padding-bottom: 20px;padding-left: 10px;padding-right: 10px;padding-top: 10px;">
+
+        <form action="/ToolShare/report/current-borrowed-tools/" method="post" class="form-horizontal">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="tool_id">Select ShareZone</label>
+                <div class="col-md-4">
+                    <select id="zip_code" name="zip_code" class="form-control input-md">
+                        {% for zone in zones %}
+                            <option value="{{ zone.zip_code }}" {% if zone.zip_code == currentzone.zip_code %} selected{% endif %}>{{ zone.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <br>
+                    <button type="submit" id="submit" name="submit" class="btn btn-primary">Show Report</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <h4>Report data for {{ currentzone }}</h4>
+
+    <table class="table" data-sorting="true" data-paging="true" data-filtering="true">
+        <thead>
+        <tr>
+            <th data-name="toolID" data-sorted="true" data-type="number">ID</th>
+            <th data-name="toolName" >Tool Name</th>
+            <th data-name="toolOwner" >Tool Owner</th>
+            <th data-name="toolBorrowedBy">Borrowed By</th>
+            <th data-name="toolBorrowedFrom" data-format-string="Y-m-d">Date Borrowed</th>
+            <th data-name="toolBorrowedTo" data-format-string="Y-m-d">Date Returning</th>
+        </tr>
+        </thead>
+        <tbody>
+        {#        {{ borrowers }}#}
+        {% for borrows in borrowtools %}
+            <tr data-expanded="false">
+                <td>{{ borrows.toolId.pk }}</td>
+                <td>{{ borrows.toolId.name }}</td>
+                <td>{{ borrows.toolId.tool_owner }}</td>
+                <td>{{ borrows.borrowerId }}</td>
+                <td>{{ borrows.start_date|date:"Y-m-d" }}</td>
+                <td>{{ borrows.end_date|date:"Y-m-d" }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        jQuery(function ($) {
+            $('.table').footable();
+        });
+    </script>
+
+{% endblock %}

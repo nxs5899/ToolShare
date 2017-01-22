@@ -1,0 +1,112 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}User History{% endblock %}
+{% block navbar_reports %}active{% endblock %}
+{% block navbar_report_person_history %}active{% endblock %}
+
+{% block body %}
+
+     <legend >Report - Person History</legend>
+
+    <div class="jumbotron" style="padding-bottom: 20px;padding-left: 10px;padding-right: 10px;padding-top: 10px;">
+
+        <form action="/ToolShare/report/user-history/" method="post" class="form-horizontal">
+            {% csrf_token %}
+
+            {% if  user.role == 'SYS' %}
+             <div class="form-group">
+                <label class="col-md-4 control-label" for="zone_id">Select ShareZone</label>
+                <div class="col-md-4">
+                    <select id="zone_id" name="zone_id" class="form-control input-md"  onchange="$('#submit').click();">
+                        {% for zone in sharezones %}
+                            <option value="{{ zone.id }}" {% if zone.id == selectedZone %} selected{% endif %}>{{ zone}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="user_id">Select User</label>
+                <div class="col-md-4">
+                    <select id="user_id" name="user_id" class="form-control input-md">
+                        {% for person in people %}
+                            <option value="{{ person.id }}" {% if person.id == selectedUser %} selected{% endif %}>{{ person}}</option>
+                        {% endfor %}
+                    </select>
+                <br>
+                <button type="submit" id="submit" name="submit" class="btn btn-primary">Show Report</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+
+    <h4>User Information</h4>
+    <table class="table">
+        <thead>
+        <tr>
+            <th data-name="userId">ID</th>
+            <th data-name="usetName">Name</th>
+            <th data-name="userEmail">Email</th>
+            <th data-name="userShareZone">ShareZone</th>
+            <th data-name="userJoinedDate" data-format-string="Y-m-d">Date Joined</th>
+            <th data-name="userRole">Role</th>
+            <th data-name="userStatus">Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr data-expanded="false">
+            <td>{{ userObject.pk }}</td>
+            <td>{{ userObject }}</td>
+            <td>{{ userObject.email }}</td>
+            <td>{{ userObject.sharezone }}</td>
+            <td>{{ userObject.created_at|date:"Y-m-d" }}</td>
+            {% if userObject.role == 'BAS' %}
+                <td>{{ 'Basic User' }}</td>
+            {% elif userObject.role == 'SHD' %}
+                <td>{{ 'Shed Coordinator' }}
+                    {% elif userObject.role == 'SYS' %}
+                <td>{{ 'System Administrator' }}</td>
+            {% endif %}
+            {% if userObject.is_deleted == False %}
+                <td>Active</td>
+            {% else %}
+                <td >Deactivated</td>
+            {% endif %}
+        </tr>
+        </tbody>
+    </table>
+
+    <br><br>
+    <h4>Borrowing History - {{ userObject }}</h4>
+    <table class="table" data-sorting="true" data-paging="true" data-filtering="true">
+        <thead>
+        <tr>
+            <th data-name="id" data-sorted="true" data-type="number">ID</th>
+            <th data-name="toolName" >Borrowed Tool</th>
+            <th data-name="toolStartDate" data-format-string="Y-m-d">Borrowed From</th>
+            <th data-name="toolEndDate" data-format-string="Y-m-d">Borrowed Till</th>
+            {#                <th data-name="toolOwner_Email">Current Status</th>#}
+        </tr>
+        </thead>
+        <tbody>
+        {% for history in user_hist %}
+            <tr data-expanded="false">
+                <td>{{ history.toolId.pk }}</td>
+                <td>{{ history.toolId.name }}</td>
+                <td>{{ history.start_date|date:"Y-m-d" }}</td>
+                <td>{{ history.end_date|date:"Y-m-d" }}</td>
+                {#                    <td>{{ tool.status }}</td>#}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <script>
+        jQuery(function ($) {
+            $('.table').footable();
+        });
+    </script>
+
+
+{% endblock %}

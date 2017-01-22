@@ -1,0 +1,122 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}ToolShare - My Profile{% endblock %}
+{% block navbar_myprofile %}active{% endblock %}
+{% block navbar_me %}active{% endblock %}
+
+{% block body %}
+
+    {% if user.is_authenticated %}
+
+        <form action="/ToolShare/myprofile/" method="post" class="form-horizontal">
+            {% csrf_token %}
+
+             <fieldset>
+
+                <!-- Form Name -->
+                <legend>My Profile</legend>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="email">E-Mail</label>
+                    <div class="col-md-4">
+                        <label id="email"  name="email" class="col-md-4 control-label">{{ user.get_username }}</label>
+
+                    </div>
+                </div>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="first_name">First Name</label>
+                    <div class="col-md-4">
+                        <input id="first_name" value="{{ form.first_name.value }}" name="first_name" type="text" placeholder="John" class="form-control input-md" required>
+                        {{ form.errors.first_name }}
+                    </div>
+                </div>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="last_name">Last Name</label>
+                    <div class="col-md-4">
+                        <input id="last_name" value="{{ form.last_name.value }}" name="last_name" type="text" placeholder="Smith" class="form-control input-md" required>
+                        {{ form.errors.last_name }}
+                    </div>
+                </div>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="telephone">Telephone</label>
+                    <div class="col-md-4">
+                        <input id="telephone" value="{{ form.telephone.value }}" name="telephone" type="tel" placeholder="8675309" class="form-control input-md" required>
+                        {{ form.errors.telephone }}
+                    </div>
+                </div>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="address_line1">Address Line 1</label>
+                    <div class="col-md-4">
+                        <input id="address_line1" value="{{ form.address_line1.value }}" name="address_line1" type="text" placeholder="123 Any Street" class="form-control input-md" required>
+                        {{ form.errors.address_line1 }}
+                    </div>
+                </div>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="address_line2">Address Line 2</label>
+                    <div class="col-md-4">
+                        <input id="address_line2" value="{{ form.address_line2.value }}" name="address_line2" type="text" placeholder="Apt 69" class="form-control input-md">
+                        {{ form.errors.address_line2 }}
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="zipcode">Zip Code</label>
+                    <div class="col-md-2">
+                        <label class="col-md-6 control-label" for="zipcode" >{{ user.sharezone.zip_code }}</label>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="date_of_birth">Date of Birth</label>
+                    <div class="col-md-2">
+                        <label class="col-md-15 control-label" for="date_of_birth">{{ user.date_of_birth }}</label>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="date_joined">Date Joined</label>
+                    <div class="col-md-2">
+                        <label class="col-md-15 control-label" for="date_joined">{{ user.date_joined }}</label>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="submit"></label>
+                    <div class="col-md-8">
+                        <button id="submit" name="submit" type="submit" class="btn btn-primary">Save</button>
+                        <button id="cancel" name="cancel" type="button" class="btn btn-default" onclick="window.location.href='/ToolShare/'">Cancel</button>
+                        <button id="exit" name="exit" type="button" class="btn btn-danger"  onclick="window.location.href='/ToolShare/exit-sharezone/'">Exit ShareZone</button>
+                    </div>
+                </div>
+
+                 {% comment %}<div class="form-group">
+                    <label class="col-md-4 control-label" for="exit_sharezone"></label>
+                    <div class="col-md-4">
+
+                    </div>
+                 </div>{% endcomment %}
+
+            </fieldset>
+
+                  <!--  <ul>{{form.as_ul}}</ul>-->
+
+        </form>
+    {% else %}
+        <p>Please sign-in to access this feature.</p>
+    {% endif %}
+
+{% endblock %}

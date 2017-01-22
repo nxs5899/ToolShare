@@ -1,0 +1,98 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}Tool History{% endblock %}
+{% block navbar_reports %}active{% endblock %}
+{% block navbar_report_tool_history %}active{% endblock %}
+
+{% block body %}
+
+    <legend>Report - Tool History</legend>
+
+    <div class="jumbotron" style="padding-bottom: 20px;padding-left: 10px;padding-right: 10px;padding-top: 10px;">
+
+        <form action="/ToolShare/report/tool-history/" method="post" class="form-horizontal">
+            {% csrf_token %}
+
+            {% if  user.role == 'SYS' %}
+             <div class="form-group">
+                <label class="col-md-4 control-label" for="zone_id">Select ShareZone</label>
+                <div class="col-md-4">
+                    <select id="zone_id" name="zone_id" class="form-control input-md"  onchange="$('#submit').click();">
+                        {% for zone in sharezones %}
+                            <option value="{{ zone.id }}" {% if zone.id == selectedZone %} selected{% endif %}>{{ zone}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="tool_id">Select Tool</label>
+                <div class="col-md-4">
+                    <select id="tool_id" name="tool_id" class="form-control input-md">
+                        {% for tool in tools %}
+                            <option value="{{ tool.id }}" {% if tool.id == selectedTool %} selected{% endif %}>{{ tool}}</option>
+                        {% endfor %}
+                    </select>
+                    <br>
+                    <button type="submit" id="submit" name="submit" class="btn btn-primary">Show Report</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+    <h4>Tool Information</h4>
+    <table class="table">
+        <thead>
+        <tr>
+            <th data-name="id">ID</th>
+            <th data-name="toolName">Tool Name</th>
+            <th data-name="toolOwner">Owner</th>
+            <th data-name="toolCategory">Category</th>
+            <th data-name="toolStatus">Current Status</th>
+            <th data-name="toolOwner" data-format-string="Y-m-d">Added On</th>
+
+        </tr>
+        </thead>
+        <tbody>
+        <tr data-expanded="false">
+            <td>{{ toolObject.pk }}</td>
+            <td>{{ toolObject.name }}</td>
+            <td>{{ toolObject.tool_owner }}</td>
+            <td>{{ toolObject.tool_category }}</td>
+            <td>{{ toolObject.tool_status }}</td>
+            <td>{{ toolObject.created_at|date:"Y-m-d" }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <br><br>
+    <h4>Borrowing History (Including Future Reservation)</h4>
+    <table class="table" data-sorting="true" data-paging="true" data-filtering="true">
+        <thead>
+        <tr>
+            <th data-sorted="true" data-name="borrowedBy">Borrowed By</th>
+            <th data-name="toolName" data-format-string="Y-m-d">From</th>
+            <th data-name="toolOwner" data-format-string="Y-m-d">To</th>
+            <th data-name="toolcondition" data-format-string="Y-m-d">Return Condition</th>
+            {#                <th data-name="toolOwner_Email">Current Status</th>#}
+        </tr>
+        </thead>
+        <tbody>
+        {% for history in tool_hist %}
+            <tr data-expanded="false">
+                <td>{{ history.borrowerId }}</td>
+                <td>{{ history.start_date|date:"Y-m-d" }}</td>
+                <td>{{ history.end_date|date:"Y-m-d" }}</td>
+                {% if history.return_condition == None %}
+                    <td>N/A</td>
+                {% else %}
+                 <td>{{ history.return_condition }}</td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+{% endblock %}

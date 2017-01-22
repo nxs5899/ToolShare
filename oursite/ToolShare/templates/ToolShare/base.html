@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}ToolShare{% endblock %}</title>
+
+    <!-- loads the path to your static files -->
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'ToolShare/css/bootstrap.min.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'ToolShare/css/jquery-ui.min.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'ToolShare/css/footable.bootstrap.min.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'ToolShare/css/style.css' %}"/>
+    <link href="https://fonts.googleapis.com/css?family=Shrikhand" rel="stylesheet">
+    <script src="{% static 'ToolShare/js/jquery-3.1.1.min.js' %}"></script>
+    <script src="{% static 'ToolShare/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'ToolShare/js/jquery-ui.min.js' %}"></script>
+    <script src="{% static 'ToolShare/js/footable.min.js' %}"></script>
+    <script src="{% static 'ToolShare/js/confirm-bootstrap.js' %}"></script>
+
+</head>
+
+
+<body>
+
+
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+
+        <!--Header -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#topNavBar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{% url 'ToolShare:index' %}">ToolShare</a>
+        </div>
+        <!-- Items -->
+        <div class="collapse navbar-collapse" id="topNavBar">
+            <ul class="nav navbar-nav">
+                {% if user.is_authenticated %}
+                    {% if user.role == 'BAS' or user.role == 'SHD' %}
+                        {% if user.approval_status == 'Approved' %}
+                            <li class="{% block navbar_register-tools %}{% endblock %}">
+                                <a href="{% url 'ToolShare:register-tool' %}">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;
+                                    Add Tool
+                                </a>
+                            </li>
+                            <li class="{% block navbar_my-tools %}{% endblock %}">
+                                <a href="{% url 'ToolShare:my-tools' %}">
+                                    <span class="glyphicon glyphicon-compressed" aria-hidden="true"></span>&nbsp;
+                                    My Tools
+                                </a>
+                            </li>
+                            <li class="{% block navbar_shed-tools %}{% endblock %}">
+                                <a href="{% url 'ToolShare:shed-tools' %}">
+                                    <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>&nbsp;
+                                    My ShareZone
+                                </a>
+                            </li>
+                            <li class="{% block navbar_return-tools %}{% endblock %}">
+                                <a href="{% url 'ToolShare:return-tool' %}">
+                                    <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span>&nbsp;
+                                    My Tool Requests
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                    {% if user.approval_status == 'Approved' %}
+                        <li class="{% block navbar_reports %}{% endblock %} dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span
+                                    class="glyphicon glyphicon-stats" aria-hidden="true"></span>&nbsp;
+                                Reports<span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li class="{% block navbar_report_most_active_borrowers %}{% endblock %}"><a
+                                        href="{% url 'ToolShare:active-borrowers' %}">Most Active Borrowers</a></li>
+                                <li class="{% block navbar_report_most_active_lenders %}{% endblock %}"><a
+                                        href="{% url 'ToolShare:active-lenders' %}">Most Active Lenders</a></li>
+                                <li class="{% block navbar_report_most_borrowed_tools %}{% endblock %}"><a
+                                        href="{% url 'ToolShare:most-borrowed' %}">Most Borrowed Tools</a></li>
+                                <li class="{% block navbar_report_recent_borrowed_tools %}{% endblock %}"><a
+                                        href="{% url 'ToolShare:current-borrowed' %}">Currently Borrowed Tools</a></li>
+                                <li class="{% block navbar_report_tool_history %}{% endblock %}"><a
+                                        href="{% url 'ToolShare:tool-history' %}">Tool History</a></li>
+                                <li class="{% block navbar_report_person_history %}{% endblock %}"><a
+                                        href="{% url 'ToolShare:user-history' %}">Person History</a></li>
+                            </ul>
+                        </li>
+                    {% endif %}
+                    {% if user.role == 'SYS' or user.role == 'SHD' %}
+                        {% if user.approval_status == 'Approved' %}
+                            <li class="{% block navbar_administration %}{% endblock %} dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                    <span class="glyphicon glyphicon-briefcase" aria-hidden="true"></span>&nbsp;
+                                    Administration<span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    {% if user.role == 'SYS' %}
+                                        <li class="{% block navbar_admin_create_admin %}{% endblock %}"><a
+                                                href="{% url 'ToolShare:admin-create' %}">Create Admin</a></li>
+                                        <li class="{% block navbar_admin_manage_admin %}{% endblock %}"><a
+                                                href="{% url 'ToolShare:admin-view' %}">Manage Admins</a></li>
+                                        <li class="{% block navbar_admin_manage_sharezone %}{% endblock %}"><a
+                                                href="{% url 'ToolShare:admin-manage-share_zones' %}">Manage
+                                            ShareZones</a>
+                                        </li>
+                                        <li class="{% block navbar_admin_manage_shed %}{% endblock %}"><a
+                                                href="{% url 'ToolShare:admin-manage-sheds' %}">Manage Sheds</a></li>
+                                    {% endif %}
+                                    <li class="{% block navbar_admin_manage_tool %}{% endblock %}"><a
+                                            href="{% url 'ToolShare:admin-manage-tools' %}">Manage Tools</a></li>
+                                    <li class="{% block navbar_admin_manage_user %}{% endblock %}"><a
+                                            href="{% url 'ToolShare:admin-manage-users' %}">Manage Users</a></li>
+
+                                </ul>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            </ul>
+            <!--
+            <form class="navbar-form navbar-left" role="search" method="get" action="#">
+                <div class="form-group">
+                    <input type="text" class="form-control" name="q" value="">
+                </div>
+                <button type="submit" class="btn btn-default">Search</button>
+            </form>
+            -->
+            <ul class="nav navbar-nav navbar-right">
+                {% if user.is_authenticated %}
+                    {% if user.approval_status == 'Approved' %}
+                        <li class="{% block navbar_notifications %}{% endblock %}">
+                            {% if user.has_unread_notifications %}
+                                <a href="{% url 'ToolShare:view-notifications' %}">
+                                    <span style="color: Red" class="glyphicon glyphicon-bell" aria-hidden="true"></span>&nbsp;
+                                    Notifications
+                                </a>
+                            {% else %}
+                                 <a href="{% url 'ToolShare:view-notifications' %}">
+                                    <span class="glyphicon glyphicon-bell" aria-hidden="true"></span>&nbsp;
+                                    Notifications
+                                </a>
+                            {% endif %}
+                        </li>
+                    {% endif %}
+                    <li class="dropdown {% block navbar_me %}{% endblock %}">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                            {{ user }}<span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% if user.approval_status == 'Approved' %}
+                                <li class="{% block navbar_myprofile %}{% endblock %}">
+                                    <a href="{% url 'ToolShare:myprofile' %}">
+                                        <span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;
+                                        My Profile
+                                    </a>
+                                </li>
+                                <li class="{% block navbar_password-change %}{% endblock %}">
+                                    <a href="{% url 'ToolShare:password-change' %}">
+                                        <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>&nbsp;
+                                        Change Password
+                                    </a>
+                                </li>
+                            {% endif %}
+                            <li class="">
+                                <a href="{% url 'ToolShare:logout' %}">
+                                    <span class="glyphicon glyphicon-off" aria-hidden="true"></span>&nbsp;
+                                    Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="{% block navbar_signin %}{% endblock %}">
+                        <a href="{% url 'ToolShare:signin' %}">
+                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>&nbsp;
+                            Signin
+                        </a>
+                    </li>
+                    <li class="{% block navbar_register-user %}{% endblock %}">
+                        <a href="{% url 'ToolShare:register-user' %}">
+                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>&nbsp;
+                            Register
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    {% block body %}
+    {% endblock %}
+</div>
+
+<hr>
+
+<footer style="color: #999;font-size: 8pt;text-align: center;font-family: Sofia Pro, sans-serif">
+Copyright © 2016 Investiny Corp.
+</footer>
+<script>
+    jQuery(document).ready(function () {
+        jQuery("[required]").before("<span class='required'>*</span>");
+        jQuery("[data-toggle='tooltip']").tooltip({html: true});
+    });
+</script>
+</body>
+</html>

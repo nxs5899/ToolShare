@@ -1,0 +1,218 @@
+{% extends 'ToolShare/base.html' %}
+{% block title %}ToolShare - Borrow Tool{% endblock %}
+
+{% block body %}
+    <script>
+        $(function () {
+            var dateFormat = "mm/dd/yy",
+                    from = $("#start_date")
+                            .datepicker({
+                                defaultDate: "+1w",
+                                numberOfMonths: 1,
+                                changeMonth: true,
+                                changeYear: true,
+                                minDate: 0
+                            })
+                            .on("change", function () {
+                                to.datepicker("option", "minDate", getDate(this));
+                            }),
+                    to = $("#end_date").datepicker({
+                        defaultDate: "+1w",
+                        numberOfMonths: 1,
+                        changeMonth: true,
+                        changeYear: true,
+                    })
+                            .on("change", function () {
+                                from.datepicker("option", "maxDate", getDate(this));
+                            });
+
+            function getDate(element) {
+                var date;
+                try {
+                    date = $.datepicker.parseDate(dateFormat, element.value);
+                } catch (error) {
+                    date = null;
+                }
+
+                return date;
+            }
+        });
+    </script>
+    {% if user.is_authenticated %}
+        <form action="/ToolShare/shed/borrow/{{ tool.id }}/" method="post" class="form-horizontal">
+            {% csrf_token %}
+            <!-- Form Name -->
+            <legend>Borrow Tool</legend>
+            <fieldset>
+                <div class="jumbotron"
+                     style="padding-bottom: 20px;padding-left: 10px;padding-right: 10px;padding-top: 10px;">
+                    <legend style="font-size:18px;">Tool Details</legend>
+
+                    <div class="row" style="margin:5px">
+                        <div class="col-sm-4" style="padding:8px; background: #f7dcc5"><b>Tool:</b> {{ tool.name }}
+                        </div>
+                        <div class="col-sm-4" style="padding:8px; background: #f7dcc5">
+                            <b>Owner:</b> {{ tool.tool_owner.get_full_name }}</div>
+                        <div class="col-sm-4" style="padding:8px; background: #f7dcc5"><b>Owner
+                            Email:</b> {{ tool.tool_owner.email }}</div>
+                    </div>
+                    <div class="row" style="margin:5px">
+                        <div class="col-sm-3" style="padding:8px; background: #f7dcc5">
+                            <b>Category:</b> {{ tool.tool_category }}</div>
+                        {% comment %}<div class="col-sm-3" style="padding:8px; background: #c5eff7">
+                            <b>Location:</b> {{ tool.tool_location }}</div>{% endcomment %}
+                        {% if tool.tool_location.location_name == 'Home' %}
+                            <div class="col-sm-3" style="padding:8px; background: #f7dcc5">
+                            <b>Location:</b>  <span class="glyphicon glyphicon-home" data-toggle="tooltip"  title="Home"></span> </div>
+                        {% endif %}
+                        {% if tool.tool_location.location_name == 'Shed' %}
+                            <div class="col-sm-3" style="padding:8px; background: #f7dcc5">
+                            <b>Location:</b>  <span class="glyphicon glyphicon-wrench" data-toggle="tooltip"  title="Shed"></span> </div>
+                        {% endif %}
+                        <div class="col-sm-3" style="padding:8px; background: #f7dcc5">
+                            <b>Condition:</b> {{ tool.tool_condition }}</div>
+                        <div class="col-sm-3" style="padding:8px; background: #f7dcc5"><b>Added
+                            On:</b> {{ tool.created_at }}</div>
+                    </div>
+                    <div class="row" style="margin:5px">
+                        <div class="col-sm-12" style="padding:8px; background: #f7dcc5">
+                            <b>Description:</b> {{ tool.description }}</div>
+                    </div>
+                    <div class="row" style="margin:5px">
+                        <div class="col-sm-12" style="padding:8px; background: #f7dcc5">
+                            <b>Instructions:</b> {{ tool.instructions }}</div>
+                    </div>
+                    <div class="row" style="margin:5px">
+                        {% if tool.tool_status.status_name != 'Available' or tool.tool_owner.email == user.email %}
+                            <div class="col-sm-12" style="padding:8px; background: #F2AFAD; text-align:center">This tool
+                                is <b>NOT AVAILABLE</b> today.
+                            </div>
+                        {% else %}
+                            <div class="col-sm-12" style="padding:8px; background: #AFF585; text-align:center">This tool
+                                is <b>AVAILABLE</b> to be borrowed.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if tool.tool_owner.email != user.email %}
+
+                    <!-- Start: Blackout Period -->
+                    {% if BlackoutDateRange.count >= 1 %}
+                    <div class="row" style="margin:5px">
+                        <div class="col-sm-12" style="padding:8px; background: #f7dcc5">
+                            <b>Blackout date range for this tool:</b>
+                            {% for blackout in BlackoutDateRange %}
+                            <div>
+                             Start Date: {{ blackout.start_date }} ; End Date: {{ blackout.end_date }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- End:  Blackout Period -->
+
+                     <!-- Start: Future Reservations -->
+                    {% if FutureBorrowToolObject.count >= 1 %}
+                    <div class="row" style="margin:5px">
+                        <div class="col-sm-12" style="padding:8px; background: #f7dcc5">
+                            <b>Future reservation for this tool:</b>
+                            {% for furtureRequest in FutureBorrowToolObject %}
+                            <div>
+                             Start Date: {{ furtureRequest.start_date }} ; End Date: {{ furtureRequest.end_date }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- End: Future Reservations -->
+
+
+                    <!-- Text input-->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="start_date">Start Date</label>
+                        <div class="col-md-2">
+                            <input id="start_date" value="{{ form.start_date.value|default:'' }}" name="start_date"
+                                   type="text"
+                                   placeholder="mm/dd/yyyy" class="form-control input-md"
+                                   style="cursor:pointer; background-color: #FFFFFF" required>
+                            {{ form.errors.start_date }}
+                        </div>
+                    </div>
+
+                    <!-- Text input-->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="end_date">End Date</label>
+                        <div class="col-md-2">
+                            <input id="end_date" value="{{ form.end_date.value|default:'' }}" name="end_date"
+                                   type="text"
+                                   placeholder="mm/dd/yyyy" class="form-control input-md"
+                                   style="cursor:pointer; background-color: #FFFFFF" required>
+                            {{ form.errors.end_date }}
+                        </div>
+                    </div>
+
+                    <!-- Text input-->
+                    <div class="form-group" style="display: none">
+                        <div class="col-md-2">
+                            <input id="toolId" value="{{ tool.id }}" name="toolId" type="hidden"
+                                   class="form-control input-md">
+                            <input id="borrowerId" value="{{ request.user.pk }}" name="borrowerId" type="hidden"
+                                   class="form-control input-md">
+                        </div>
+                    </div>
+
+                    <!-- Text input-->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="borrower_notes">Borrower Notes/Comments</label>
+                        <div class="col-md-6">
+                            <textarea id="borrower_notes" name="borrower_notes"
+                                      placeholder="Notes/Comments" class="form-control input-md"
+                                      rows="5">{{ form.notes.value|default:'' }}</textarea>
+                            {{ form.errors.notes }}
+                        </div>
+                    </div>
+
+                    <!-- Text input-->
+                    {% comment %}<div class="form-group" style="display: none">
+                        <label class="col-md-4 control-label" for="currently_borrowed">Currently Borrowed</label>
+                        <div class="col-md-6">
+                            <input id="currently_borrowed" value="True" name="currently_borrowed" type="text"
+                                   class="form-control input-md">
+                            {{ form.errors.notes }}
+                        </div>
+                    </div>{% endcomment %}
+                    <!-- Text input-->
+                    <div class="form-group" style="display: none">
+                        <label class="col-md-4 control-label" for="lender_notes">Lender Notes/Comments</label>
+                        <div class="col-md-6">
+                            <textarea id="lender_notes" name="lender_notes" class="form-control input-md" rows="5"
+                                      readonly disabled>{{ form.notes.value|default:'' }}</textarea>
+                            {{ form.errors.notes }}
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="col-md-4 control-label">&nbsp;</label>
+                        {{ form.non_field_errors }}
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="submit"></label>
+                        <div class="col-md-8">
+                            <button type="submit" id="submit" name="Borrow" class="btn btn-primary">Borrow</button>
+                            <button type="button" id="cancel" name="cancel" class="btn btn-default"
+                                  onclick="window.location.href='/ToolShare/'">Cancel</button>
+                        </div>
+                    </div>
+
+                {% endif %}
+
+            </fieldset>
+        </form>
+    {% endif %}
+{% endblock %}
